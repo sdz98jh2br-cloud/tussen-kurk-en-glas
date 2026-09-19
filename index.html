@@ -72,7 +72,7 @@ textarea:focus{border-color:var(--wine)}
 .wine-nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:28px 0 10px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .arrow{border:1px solid var(--line);background:#fff;color:var(--wine);border-radius:12px;padding:12px 10px;font-weight:650}
 .arrow:last-child{text-align:right}.arrow:disabled{opacity:.28;cursor:default}.wine-nav-center{font-size:12px;color:var(--muted);white-space:nowrap}
-.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:grid;grid-template-columns:repeat(4,1fr);background:rgba(248,248,245,.97);backdrop-filter:blur(12px);border-top:1px solid var(--line);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:50;height:calc(var(--nav-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(248,248,245,.97);backdrop-filter:blur(12px);border-top:1px solid var(--line);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 .nav-btn{border:0;background:transparent;color:#826b66;font-size:11px;padding:8px 3px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
 .nav-btn .ico{font-size:22px;line-height:1}.nav-btn.active{color:var(--wine);font-weight:700}
 #aroma{overflow:hidden}.wheel-area{display:grid;place-items:center;padding:12px;min-height:calc(100dvh - 130px - var(--nav-h))}
@@ -390,6 +390,63 @@ textarea:focus{border-color:var(--wine)}
   }
 }
 
+.wine-ref{color:var(--wine);font-weight:650;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px;cursor:pointer}
+.wine-ref:hover{opacity:.78}
+
+.nav-link{text-decoration:none;box-sizing:border-box}
+
+.bottom-nav .nav-link,.bottom-nav .nav-link:link,.bottom-nav .nav-link:visited,.bottom-nav .nav-link:hover,.bottom-nav .nav-link:active{
+ color:var(--muted)!important;text-decoration:none!important;-webkit-text-fill-color:var(--muted)
+}
+
+.explore-screen{padding:0!important;max-width:none!important}
+.explore-frame{display:block;width:100%;height:calc(100dvh - 72px);border:0;background:var(--paper)}
+@media(max-width:700px){.explore-frame{height:calc(100dvh - 64px)}}
+
+
+
+
+
+
+.bottom-nav .nav-btn .ico{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:22px!important;
+  height:20px!important;
+  min-width:22px!important;
+  min-height:20px!important;
+  margin:0 auto 2px!important;
+  font-size:18px!important;
+  line-height:20px!important;
+  font-weight:400!important;
+  visibility:visible!important;
+  opacity:1!important;
+  flex:0 0 20px!important;
+}
+
+
+/* v6.4 mobile hardening */
+html,body{max-width:100%;overflow-x:hidden}
+:root{--safe-bottom:env(safe-area-inset-bottom,0px);--safe-top:env(safe-area-inset-top,0px)}
+.bottom-nav{
+  min-height:calc(var(--nav-h) + var(--safe-bottom));
+  padding-bottom:var(--safe-bottom);
+  box-sizing:border-box;
+}
+.explore-frame{
+  height:calc(100dvh - var(--nav-h) - var(--safe-bottom))!important;
+  max-width:100%;
+}
+button,.nav-btn,.wine-pick,.arrow{touch-action:manipulation}
+@media(max-width:700px){
+  .explore-frame{height:calc(100dvh - var(--nav-h) - var(--safe-bottom))!important}
+  input,textarea,select,button{max-width:100%}
+}
+@supports not (height:100dvh){
+  .explore-frame{height:calc(100vh - var(--nav-h) - var(--safe-bottom))!important}
+}
+
 </style>
 </head>
 <body>
@@ -425,6 +482,10 @@ textarea:focus{border-color:var(--wine)}
     <div id="pendingWrap"></div>
     <button class="action primary pdf-export-btn" id="exportPdf">Exporteer als PDF</button>
   </main>
+</section>
+
+<section id="explore" class="screen explore-screen">
+  <iframe id="exploreFrame" class="explore-frame" src="explore.html" title="Explore wijnkennis"></iframe>
 </section>
 
 <section id="settings" class="screen">
@@ -470,6 +531,7 @@ textarea:focus{border-color:var(--wine)}
   <button class="nav-btn active" data-target="tasting"><span class="ico">◒</span><span>Proeven</span></button>
   <button class="nav-btn" data-target="aroma"><span class="ico">◎</span><span>Aromawiel</span></button>
   <button class="nav-btn" data-target="results"><span class="ico">≋</span><span>Resultaat</span></button>
+  <button class="nav-btn" data-target="explore"><span class="ico">⊕</span><span>Explore</span></button>
   <button class="nav-btn" data-target="settings"><span class="ico">⚙︎</span><span>Instellingen</span></button>
 </nav>
 
@@ -516,7 +578,51 @@ function show(id){
 document.getElementById("cover").addEventListener("click",()=>{
   document.getElementById("bottomNav").hidden=false; show("tasting");
 });
-document.querySelectorAll(".nav-btn").forEach(b=>b.addEventListener("click",()=>show(b.dataset.target)));
+
+document.querySelectorAll("button.nav-btn").forEach(b=>b.addEventListener("click",()=>{
+ if(b.dataset.target==="explore"){
+   show("explore");
+   const f=document.getElementById("exploreFrame");
+   try{f.contentWindow.postMessage({type:"tkag-explore-home"},"*")}catch(_){}
+   return;
+ }
+ show(b.dataset.target);
+}));
+window.addEventListener("message",e=>{
+ const d=e.data||{};
+ if(d.type==="tkag-explore-ready"){
+   const f=document.getElementById("exploreFrame");
+   f.dataset.ready="1";
+   const pending=f.dataset.pendingHash;
+   if(pending){delete f.dataset.pendingHash;try{f.contentWindow.postMessage({type:"tkag-explore-open",hash:pending},"*")}catch(_){}}
+   return;
+ }
+ if(d.type!=="tkag-nav")return;
+ if(["tasting","aroma","results","settings"].includes(d.target))show(d.target);
+});
+
+function openExploreHash(hash){
+ const f=document.getElementById("exploreFrame");
+ show("explore");
+ const send=()=>{
+   try{f.contentWindow.postMessage({type:"tkag-explore-open",hash},"*")}catch(_){}
+ };
+ if(f.dataset.ready==="1") send();
+ else{
+   f.dataset.pendingHash=hash;
+   f.addEventListener("load",()=>{
+     f.dataset.ready="1";
+     const pending=f.dataset.pendingHash;
+     if(pending){delete f.dataset.pendingHash;setTimeout(()=>{try{f.contentWindow.postMessage({type:"tkag-explore-open",hash:pending},"*")}catch(_){}},0)}
+   },{once:true});
+ }
+}
+document.addEventListener("click",e=>{
+ const g=e.target.closest("[data-grape]"),r=e.target.closest("[data-region]");
+ if(g){openExploreHash("grape="+encodeURIComponent(g.dataset.grape));return}
+ if(r){openExploreHash("region="+encodeURIComponent(r.dataset.region));return}
+});
+
 document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",()=>{
   document.getElementById("bottomNav").hidden=true;
   document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id==="cover"));
@@ -533,6 +639,12 @@ function tasteCard(label,key,noteKey,aromaButton=false){
     ${aromaButton?'<button class="aroma-link" type="button" onclick="show(\'aroma\')">Open aromawiel</button>':""}
   </section>`;
 }
+
+const exploreGrapes=new Set(["Aleksandrouli","Cabernet Sauvignon","Corvina","Corvinone","Graciano","Malbec","Mazuelo","Merlot","Mujuretuli","Petite Sirah","Petit Verdot","Pinot Noir","Rondinella","Sangiovese","Saperavi","Tempranillo"]);
+const exploreRegions=["Racha-Lechkhumi","Central Coast","Uco Valley","Rioja Alta","Valpolicella","Kakheti","Veneto"];
+function grapeLinks(text){return String(text).split(" · ").map(part=>{const name=part.replace(/^\s*\d+(?:[.,]\d+)?%\s*/,"").trim();if(!exploreGrapes.has(name))return esc(part);const prefix=part.slice(0,part.length-name.length);return esc(prefix)+`<span class="wine-ref" data-grape="${esc(name)}">${esc(name)}</span>`}).join(" · ")}
+function originLinks(text){let safe=esc(text);exploreRegions.forEach(name=>{safe=safe.replace(name,`<span class="wine-ref" data-region="${name}">${name}</span>`)});return safe}
+
 function renderWine(){
   const i=state.current,w=wines[i],e=state.entries[i],f=finalScore(i);
   document.getElementById("topCounter").textContent=`Wijn ${i+1} van ${wines.length} ⌄`;
@@ -543,8 +655,8 @@ function renderWine(){
     <section class="info-card">
       <div class="bottle-wrap"><img class="bottle" src="${w.image}" alt="Fles ${esc(w.name)}" data-open-bottle></div>
       <div class="meta">
-        <div class="meta-row"><span class="meta-label">Herkomst</span>${esc(w.origin)}</div>
-        <div class="meta-row"><span class="meta-label">Druif / druiven</span>${esc(w.grapes)}</div>
+        <div class="meta-row"><span class="meta-label">Herkomst</span>${originLinks(w.origin)}</div>
+        <div class="meta-row"><span class="meta-label">Druif / druiven</span>${grapeLinks(w.grapes)}</div>
         <div class="meta-row"><span class="meta-label">Alcohol</span>${esc(w.alcohol)}</div>
         <div class="meta-row"><span class="meta-label">Wijnkleur</span>${esc(w.color)}</div>
       </div>
@@ -737,6 +849,15 @@ window.addEventListener("mousemove",e=>{if(!mouseDown)return;rotation=startRotat
 window.addEventListener("mouseup",()=>{mouseDown=false;wheel.classList.remove("dragging")});
 stage.addEventListener("wheel",e=>{const oldScale=scale,newScale=Math.max(1,Math.min(4,scale*(e.deltaY<0?1.12:.89)));if(newScale===1){scale=1;panX=0;panY=0}else if(oldScale!==newScale){const c=stageCenter(),focusX=e.clientX-c.x,focusY=e.clientY-c.y,ratio=newScale/oldScale;panX=focusX-(focusX-panX)*ratio;panY=focusY-(focusY-panY)*ratio;scale=newScale;clampPan()}applyTransform();e.preventDefault()},{passive:false});
 document.getElementById("resetWheel").addEventListener("click",()=>{rotation=0;scale=1;panX=0;panY=0;applyTransform()});
+
+/* Start pas nadat alle bedieningselementen en instellingen zijn geïnitialiseerd. */
+(function startFromHash(){
+ const target=location.hash.slice(1);
+ if(["tasting","aroma","results","settings","explore"].includes(target)){
+   document.getElementById("bottomNav").hidden=false;
+   show(target);
+ }
+})();
 </script>
 </body>
 </html>

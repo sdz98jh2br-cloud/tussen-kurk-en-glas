@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tussen Kurk & Glas — Explore proefversie 2</title>
+<style>
+:root{--wine:#761515;--wine2:#5d1d2e;--paper:#f1f1ed;--card:#fff;--line:#e4ddda;--muted:#8f7670;background:var(--paper);color:var(--wine);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit} .app{max-width:980px;margin:auto;min-height:100vh;padding-bottom:88px}
+.top{position:sticky;top:0;z-index:10;background:#f8f8f5f5;border-bottom:1px solid var(--line);padding:15px 18px;display:flex;align-items:center;gap:10px}
+.back{border:0;background:none;color:var(--wine);font-size:27px;width:32px;cursor:pointer} .top-title{font:700 20px Georgia,serif}
+main{padding:24px 18px 38px} .eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+h1,h2,h3{font-family:Georgia,serif} h1{font-size:34px;margin:7px 0 9px} .lead{color:var(--muted);line-height:1.55;max-width:680px;margin:0 0 24px}
+.homegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px} .homecard{background:#fff;border:1px solid var(--line);border-radius:17px;padding:18px;min-height:125px;cursor:pointer}
+.homecard i{display:none!important} .homecard b{font:700 18px Georgia,serif} .homecard small{display:block;color:var(--muted);margin-top:5px;line-height:1.35}
+.search{width:100%;font-size:16px;padding:13px 14px;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--wine);margin-bottom:17px}
+.photo-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.tile{border:1px solid var(--line);background:#fff;border-radius:14px;overflow:hidden;cursor:pointer;box-shadow:0 1px 3px #4b17210b}
+.tile img{display:block;width:100%;aspect-ratio:1/1;object-fit:cover} .tile-name{min-height:52px;display:flex;align-items:center;justify-content:center;padding:8px;text-align:center;font:700 14px Georgia,serif;color:var(--wine)}
+.hero{width:100%;max-height:330px;aspect-ratio:16/7;object-fit:cover;border-radius:17px;margin:10px 0 20px}
+.grape-detail-head{display:flex;align-items:flex-start;gap:20px;margin:10px 0 20px}
+.grape-detail-img{width:112px;height:150px;object-fit:cover;object-position:center;border-radius:12px;border:1px solid var(--line);background:#fff;flex:0 0 auto}
+.grape-detail-title{padding-top:2px}
+.grape-detail-title h1{margin-top:0}
+@media(max-width:500px){.grape-detail-head{gap:15px}.grape-detail-img{width:96px;height:132px}}.grape-detail-photo{display:block;width:auto;max-width:150px;height:210px;object-fit:contain;border-radius:12px;margin:10px auto 22px;background:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0 22px} .chip{padding:7px 10px;background:#f1e9eb;border:1px solid #e7d7dc;border-radius:999px;font-size:13px}
+.section{margin:26px 0} .section h3{margin-bottom:7px} .section p{color:#6f4652;line-height:1.65;margin:0}
+.linkbox{background:#fff;border-left:3px solid var(--wine);padding:13px 14px;border-radius:0 12px 12px 0;margin:12px 0;cursor:pointer}
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#f8f8f5;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.nav{max-width:980px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr)} .nav button{border:0;background:none;color:#9a7a83;padding:8px 2px 7px;font-size:10px} .nav button.active{color:var(--wine);font-weight:800} .nav i{display:block;font-style:normal;font-size:19px;margin-bottom:2px}
+@media(max-width:760px){.photo-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:500px){main{padding:21px 14px 32px} h1{font-size:30px} .photo-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px} .tile-name{font-size:13px;min-height:49px} .homegrid{gap:10px} .homecard{padding:15px;min-height:118px}}
+
+/* v6 — grape detail uses the same left-column geometry as the tasting bottle card */
+.grape-info-card{
+  display:grid;
+  grid-template-columns:120px minmax(0,1fr);
+  gap:18px;
+  align-items:center;
+  background:rgba(255,255,255,.55);
+  border:1px solid rgba(118,21,21,.18);
+  border-radius:18px;
+  padding:16px;
+  margin:18px 0 24px;
+}
+.grape-wrap{
+  width:100%;
+  height:300px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
+}
+.grape-photo{
+  display:block;
+  width:100%!important;
+  height:100%!important;
+  max-width:165px!important;
+  max-height:280px!important;
+  object-fit:cover!important;
+  position:static!important;
+  margin:0 auto!important;
+}
+.grape-meta{color:#5f2927;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;line-height:1.45}
+.grape-meta h1{font-family:Georgia,"Times New Roman",serif;color:#761515;font-size:clamp(30px,7vw,48px);font-style:italic;font-weight:400;line-height:1.05;margin:6px 0 12px}
+.grape-meta p{color:#8f7670;margin:0;line-height:1.55}
+@media(max-width:520px){
+ .grape-info-card{grid-template-columns:105px minmax(0,1fr);gap:12px;padding:13px}
+ .grape-wrap{height:285px}
+ .grape-photo{max-width:155px!important;max-height:270px!important}
+ .grape-meta{font-size:12.5px}
+ .grape-meta h1{font-size:31px}
+}
+@media(max-width:360px){
+ .grape-info-card{grid-template-columns:90px minmax(0,1fr)}
+ .grape-wrap{height:260px}
+ .grape-photo{max-width:135px!important;max-height:245px!important}
+}
+
+
+/* v7 — refined grape detail */
+.grape-profile{
+  display:grid;
+  grid-template-columns:160px minmax(0,1fr);
+  gap:24px;
+  align-items:start;
+  margin:18px 0 26px;
+}
+.grape-profile-photo{
+  width:160px!important;
+  height:160px!important;
+  display:block;
+  object-fit:cover!important;
+  object-position:center!important;
+  border:0!important;
+  border-radius:14px;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.grape-profile-copy{padding-top:3px}
+.grape-profile-copy h1{
+  margin:0 0 8px;
+  color:var(--wine);
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(31px,6vw,46px);
+  line-height:1.04;
+  font-style:italic;
+  font-weight:400;
+}
+.grape-kicker{
+  margin:0;
+  color:var(--muted);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14px;
+  line-height:1.5;
+}
+.grape-facts{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin-top:17px;
+}
+.grape-fact{
+  border-top:1px solid var(--line);
+  padding-top:8px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+.grape-fact-label{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:3px;
+}
+.grape-fact-value{color:var(--ink);font-size:13px}
+@media(max-width:520px){
+  .grape-profile{grid-template-columns:118px minmax(0,1fr);gap:15px;margin-top:14px}
+  .grape-profile-photo{width:118px!important;height:118px!important;border-radius:12px}
+  .grape-profile-copy h1{font-size:29px}
+  .grape-kicker{font-size:12.5px}
+  .grape-facts{grid-template-columns:1fr;gap:5px;margin-top:12px}
+  .grape-fact{padding-top:5px}
+}
+
+
+/* v9 — internal Explore cross-links */
+.xlinks{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.xlink{border:1px solid var(--line);background:rgba(255,255,255,.62);color:var(--wine);border-radius:999px;padding:8px 11px;font:600 12px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;cursor:pointer}
+.xlink:hover{background:#fff}
+.inline-xlink{border:0;background:transparent;padding:0;color:var(--wine);font:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.related{margin-top:24px;padding-top:16px;border-top:1px solid var(--line)}
+.related h3{margin:0 0 9px}
+
+
+/* v10 — begrippen & definities */
+.term-link{border:0;background:transparent;padding:0;color:var(--wine);font:inherit;font-weight:700;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;cursor:pointer}
+.term-index{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}
+.term-card{border:1px solid var(--line);background:rgba(255,255,255,.56);border-radius:14px;padding:13px;text-align:left;color:var(--ink);cursor:pointer}
+.term-card b{display:block;color:var(--wine);font-family:Georgia,"Times New Roman",serif;font-size:18px;margin-bottom:4px}
+.term-card span{font-size:12px;color:var(--muted);line-height:1.4}
+@media(max-width:520px){.term-index{grid-template-columns:1fr}}
+
+
+/* v11.1 — clearer knowledge-page lists */
+.section ul{margin:10px 0 6px;padding-left:20px}
+.section li{margin:7px 0;line-height:1.55;color:var(--ink)}
+.section li::marker{color:var(--wine)}
+
+
+/* v11.3 — consistent related-navigation chips */
+.related .xlinks{display:flex;flex-wrap:wrap;gap:9px}
+.related .term-link,
+.related .xlink{
+  display:inline-flex;
+  align-items:center;
+  min-height:42px;
+  box-sizing:border-box;
+  margin:0;
+  padding:9px 16px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(255,255,255,.62);
+  color:var(--wine);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14px;
+  font-weight:650;
+  line-height:1.15;
+  text-decoration:none;
+  cursor:pointer;
+}
+.related .term-link:hover,
+.related .xlink:hover{background:#fff}
+@media(max-width:520px){
+  .related .xlinks{gap:7px}
+  .related .term-link,.related .xlink{min-height:38px;padding:8px 13px;font-size:13px}
+}
+
+
+.bottom .nav a,.bottom .nav a:link,.bottom .nav a:visited,.bottom .nav a:hover,.bottom .nav a:active{
+ appearance:none;-webkit-appearance:none;border:0;background:transparent;color:var(--muted)!important;
+ -webkit-text-fill-color:var(--muted);text-decoration:none!important;font:inherit;font-size:11px;font-weight:700;
+ display:flex;align-items:center;justify-content:center;
+}
+
+@media all{
+ body.embedded .bottom{display:none!important}
+ body.embedded{padding-bottom:0!important}
+}
+
+/* v6.4 embedded/mobile hardening */
+html,body{max-width:100%;overflow-x:hidden}
+img{max-width:100%}
+button,a{touch-action:manipulation}
+body.embedded{min-height:100%;padding-bottom:0!important}
+@media(max-width:520px){
+  .wrap,.content,.page{max-width:100%;box-sizing:border-box}
+}
+
+</style></head><body>
+<div class="app"><header class="top"><button class="back" id="back" onclick="goBack()">‹</button><div class="top-title" id="title">Explore</div></header><main id="view"></main></div>
+<div class="bottom"><div class="nav">
+<button onclick="goMain('tasting')">Proeven</button><button onclick="goMain('aroma')">Aromawiel</button><button onclick="goMain('results')">Resultaat</button><button class="active" onclick="home()">Explore</button><button onclick="goMain('settings')">Instellingen</button>
+</div></div>
+<script>
+function goMain(target){
+ if(window.parent!==window){window.parent.postMessage({type:"tkag-nav",target},"*")}
+ else location.href="./index.html#"+target;
+}
+const grapes=[{"name":"Aleksandrouli","img":"explore-assets/grape-aleksandrouli.webp"},{"name":"Cabernet Sauvignon","img":"explore-assets/grape-cabernet-sauvignon.webp"},{"name":"Corvina","img":"explore-assets/grape-corvina.webp"},{"name":"Corvinone","img":"explore-assets/grape-corvinone.webp"},{"name":"Graciano","img":"explore-assets/grape-graciano.webp"},{"name":"Malbec","img":"explore-assets/grape-malbec.webp"},{"name":"Mazuelo","img":"explore-assets/grape-mazuelo.webp"},{"name":"Merlot","img":"explore-assets/grape-merlot.webp"},{"name":"Mujuretuli","img":"explore-assets/grape-mujuretuli.webp"},{"name":"Petite Sirah","img":"explore-assets/grape-petite-sirah.webp"},{"name":"Petit Verdot","img":"explore-assets/grape-petit-verdot.webp"},{"name":"Pinot Noir","img":"explore-assets/grape-pinot-noir.webp"},{"name":"Rondinella","img":"explore-assets/grape-rondinella.webp"},{"name":"Sangiovese","img":"explore-assets/grape-sangiovese.webp"},{"name":"Saperavi","img":"explore-assets/grape-saperavi.webp"},{"name":"Tempranillo","img":"explore-assets/grape-tempranillo.webp"}]
+const regions=[{"name":"Central Coast","img":"explore-assets/region-central-coast.webp"},{"name":"Veneto","img":"explore-assets/region-veneto.webp"},{"name":"Uco Valley","img":"explore-assets/region-uco-valley.webp"},{"name":"Rioja Alta","img":"explore-assets/region-rioja-alta.webp"},{"name":"Racha-Lechkhumi","img":"explore-assets/region-racha-lechkhumi.webp"},{"name":"Kakheti","img":"explore-assets/region-kakheti.webp"},{"name":"Valpolicella","img":"explore-assets/region-valpolicella.webp"}]
+const v=document.getElementById('view'),t=document.getElementById('title'),bk=document.getElementById('back'); let hist=[];
+function setPage(n,h,push=true){if(push)hist.push([t.textContent,v.innerHTML]);t.textContent=n;v.innerHTML=h;bk.style.visibility=n==='Explore'?'hidden':'visible';scrollTo(0,0)}
+function card(i,n,d,f){return `<div class="homecard" onclick="${f}">${i?``:''}<b>${n}</b><small>${d}</small></div>`}
+function home(){hist=[];setPage('Explore',`<div class=eyebrow>Tussen Kurk & Glas</div><h1>Ontdek wijn</h1><p class=lead>Een permanente kennisbank over druiven, wijnstreken, terroir, wijnbouw, vinificatie en proeven.</p><div class=homegrid>${card('','Druivenrassen','Aroma, structuur en karakter','grapeList()')}${card('','Wijnstreken','Klimaat, bodem en stijl','regionList()')}${card('','Terroir','Klimaat, bodem, hoogte en water','article(`Terroir`)')}${card('','Wijnbouw','Van wijnstok tot oogst','article(`Wijnbouw`)')}${card('','Vinificatie','Van druif tot wijn','article(`Vinificatie`)')}${card('','Proeven','Zuur, tannine, body en aroma','article(`Proeven`)')}${card('','Rijping & hout','Eiken, flesrijping en vintage','article(`Rijping & hout`)')}${card('','Wijnkennis','Technieken, stijlen en wijnfouten','article(`Wijnkennis`)')}</div>`,false)}
+function tiles(a,type){return a.map((x,i)=>`<div class=tile onclick="${type}Detail(${i})"><img src="${x.img}" alt="${x.name}"><div class=tile-name>${x.name}</div></div>`).join('')}
+
+const grapeKnowledge={"Aleksandrouli":{"acid":"Gemiddeld–hoog","tannin":"Laag–gemiddeld","body":"Licht–medium","summary":"Een zeldzaam Georgisch ras uit Racha, bekend om verfijnd rood fruit en een frisse, aromatische stijl.","aromas":"Rode kers, framboos, aardbei, viooltjes en lichte kruidigheid.","character":"Aleksandrouli rijpt relatief laat en kan elegante rode wijnen geven met levendige zuren en bescheiden tannine. Het ras wordt maar beperkt aangeplant en is sterk verbonden met de bergachtige regio Racha.","regions":"Vooral Racha in Georgië, met name rond Ambrolauri en de Khvanchkara-microzone.","extra":"Samen met Mujuretuli vormt Aleksandrouli de klassieke druivenbasis van Khvanchkara. De beschermde herkomst schrijft deze twee rassen voor."},"Cabernet Sauvignon":{"acid":"Gemiddeld–hoog","tannin":"Hoog","body":"Vol","summary":"Een krachtig, gestructureerd ras met donker fruit, stevige tannine en groot rijpingspotentieel.","aromas":"Zwarte bes, zwarte kers, ceder, grafiet en specerijen; bij rijping vaak tabak en leer.","character":"Cabernet Sauvignon heeft relatief dikke schillen en levert doorgaans diepgekleurde, droge wijnen met veel structuur. In koelere omstandigheden kunnen kruidige of groene tonen optreden; warmere klimaten geven rijper zwart fruit. Houtlagering kan ceder, vanille en toast toevoegen.","regions":"Bordeaux, Napa Valley, Chili, Australië, Zuid-Afrika en veel andere gematigde tot warme wijngebieden.","extra":"DNA-onderzoek heeft aangetoond dat Cabernet Sauvignon een natuurlijke kruising is van Cabernet Franc en Sauvignon Blanc."},"Corvina":{"acid":"Hoog","tannin":"Laag–gemiddeld","body":"Medium","summary":"De belangrijkste blauwe druif van Valpolicella, gewaardeerd om kersenfruit, frisheid en geschiktheid voor indroging.","aromas":"Zure en rode kers, pruim, kruiden en soms amandelachtige tonen.","character":"Corvina vormt de ruggengraat van veel Valpolicella-wijnen. Het ras combineert duidelijke zuren met relatief soepele tannine. De druiven zijn geschikt voor appassimento, waarbij ze na de oogst worden ingedroogd en aroma’s, suiker en extract concentreren.","regions":"Vrijwel volledig verbonden met Veneto, vooral Valpolicella rond Verona.","extra":"Corvina is een belangrijk bestanddeel van Valpolicella, Ripasso, Recioto en Amarone. Amarone is dus een wijnstijl/herkomstbenaming, geen druivenras."},"Corvinone":{"acid":"Gemiddeld–hoog","tannin":"Gemiddeld","body":"Medium–vol","summary":"Een afzonderlijk Valpolicella-ras dat structuur en kruidige kersenaroma’s aan blends toevoegt.","aromas":"Morellen, donker rood fruit en duidelijke kruidigheid.","character":"Corvinone werd vroeger wel als een variant van Corvina beschouwd, maar is een afzonderlijk druivenras. Het geeft aromatische complexiteit en structuur en is door zijn druifeigenschappen goed bruikbaar voor appassimento.","regions":"Veneto, in het bijzonder Valpolicella.","extra":"Binnen de regels van Amarone en Valpolicella kan Corvinone samen met of deels in plaats van Corvina worden gebruikt."},"Graciano":{"acid":"Hoog","tannin":"Gemiddeld–hoog","body":"Medium","summary":"Een aromatisch, laatrijpend Rioja-ras dat zuren, kleur en structuur aan blends kan toevoegen.","aromas":"Rood en zwart fruit, bloemen, zoethout en kruidige/balsamische tonen.","character":"Graciano heeft een hoge natuurlijke zuurgraad en veel polyfenolen. Daardoor is het bijzonder bruikbaar in wijnen die lang moeten rijpen. Het ras heeft relatief lage opbrengsten en rijpt laat.","regions":"Vooral Rioja in Spanje; daarnaast kleine aanplant elders.","extra":"In Rioja wordt Graciano vaak met Tempranillo gecombineerd om frisheid, aroma en bewaarpotentieel te versterken."},"Malbec":{"acid":"Gemiddeld","tannin":"Gemiddeld","body":"Vol","summary":"Een donkerfruitig ras dat vooral met Argentinië wordt geassocieerd en rijpe, volle maar vaak toegankelijke rode wijnen geeft.","aromas":"Pruim, braam, zwarte kers en viooltjes; hout kan cacao, vanille, tabak en specerijen toevoegen.","character":"Malbec heeft veel kleur en kan volle wijnen met rijpe tannine leveren. De stijl varieert sterk met hoogte, klimaat en vinificatie. Argentijnse voorbeelden zijn vaak fruitrijk; in het Franse Cahors kan de stijl steviger en aardser zijn.","regions":"Mendoza en vooral Uco Valley in Argentinië; Cahors in Zuidwest-Frankrijk.","extra":"Malbec is van Franse oorsprong en staat daar ook bekend als Côt. Argentinië is tegenwoordig het land waarmee het ras het sterkst wordt geassocieerd."},"Mazuelo":{"acid":"Hoog","tannin":"Hoog","body":"Medium–vol","summary":"De Rioja-naam voor Carignan/Cariñena: een laatrijpend ras dat vooral structuur, zuur en tannine levert.","aromas":"Donkere kers, pruim, kruiden en aardse of kruidachtige tonen.","character":"Mazuelo kan uitgesproken zuur en tannine hebben en vraagt voldoende warmte om goed te rijpen. Bij beheerste opbrengsten kan het kwaliteit en bewaarpotentieel aan een blend toevoegen.","regions":"Rioja; onder andere namen ook in Aragón, Catalonië, Zuid-Frankrijk en andere mediterrane gebieden.","extra":"Mazuelo, Carignan, Cariñena en Samsó worden als synoniemen gebruikt. In Rioja is het een klassieke partner van Tempranillo."},"Merlot":{"acid":"Gemiddeld","tannin":"Gemiddeld","body":"Medium–vol","summary":"Een soepel en veelzijdig Bordeaux-ras met pruim, kers en een doorgaans rondere tanninestructuur dan Cabernet Sauvignon.","aromas":"Pruim, zwarte kers, braam, laurier en chocolade; hout kan vanille en specerijen toevoegen.","character":"Merlot kan variëren van fris en gestructureerd in koelere gebieden tot rijp, zacht en voller in warmere klimaten. De tannine is doorgaans minder streng dan bij Cabernet Sauvignon, terwijl de zuurgraad meestal middelmatig blijft.","regions":"Bordeaux, Noord-Italië, Californië, Chili en vele andere wijngebieden.","extra":"Merlot is een nakomeling van Cabernet Franc en Magdeleine Noire des Charentes en is een van de belangrijkste blauwe rassen ter wereld."},"Mujuretuli":{"acid":"Gemiddeld–hoog","tannin":"Gemiddeld","body":"Medium","summary":"Een zeldzaam Georgisch ras uit Racha dat meestal samen met Aleksandrouli wordt aangeplant en gevinifieerd.","aromas":"Rood tot donker rood fruit, kruiden en florale nuances.","character":"Mujuretuli komt vooral langs de Rioni in Racha-Lechkhumi voor. Monocépage-aanplant is zeldzaam; het ras staat vaak samen met Aleksandrouli in de wijngaard. Het kan kleur en structuur aan de combinatie toevoegen.","regions":"Racha-Lechkhumi in Georgië, vooral het district Ambrolauri en de Khvanchkara-microzone.","extra":"De Georgische National Wine Agency beschrijft Mujuretuli en Aleksandrouli als afzonderlijke maar verwante rassen. Beide zijn de verplichte basis voor Khvanchkara."},"Petite Sirah":{"acid":"Gemiddeld","tannin":"Hoog","body":"Vol","summary":"Ook Durif genoemd: een zeer donker, krachtig ras met veel tannine, zwart fruit en kruidigheid.","aromas":"Bosbes, donkere pruim, zwarte bes, pure chocolade, zwarte peper en zwarte thee.","character":"Petite Sirah geeft diepgekleurde, volle wijnen met uitgesproken tannine en meestal middelmatige zuren. De stevige structuur kan goed rijpen, maar vraagt vaak tijd of eten om de tannine te verzachten.","regions":"Vooral Californië; kleinere aanplant in onder meer Australië en Israël.","extra":"Durif ontstond in Frankrijk als kruising van Syrah en Peloursin. De naam Petite Sirah wordt vooral in de Verenigde Staten gebruikt."},"Petit Verdot":{"acid":"Gemiddeld–hoog","tannin":"Hoog","body":"Vol","summary":"Een laatrijpend Bordeaux-ras dat in kleine hoeveelheden kleur, tannine, kruidigheid en florale aroma’s kan toevoegen.","aromas":"Braam, zwarte pruim, viooltjes, peper en specerijen.","character":"Petit Verdot rijpt laat en werd traditioneel vooral als klein onderdeel van Bordeaux-blends gebruikt. In warmere gebieden kan het ook als monocépage goed rijpen en zeer donkere, stevige wijnen opleveren.","regions":"Bordeaux in kleine hoeveelheden; daarnaast warmere gebieden zoals Spanje, Australië, Californië en Zuid-Amerika.","extra":"De kracht van Petit Verdot maakt kleine percentages al merkbaar in een blend."},"Pinot Noir":{"acid":"Hoog","tannin":"Laag–gemiddeld","body":"Licht–medium","summary":"Een dun-schillig, verfijnd ras dat bekendstaat om rood fruit, hoge zuren en relatief zachte tannine.","aromas":"Kers, aardbei, framboos en cranberry; met ontwikkeling aarde, bosgrond, paddenstoel en specerijen.","character":"Pinot Noir is gevoelig voor klimaat en wijngaardomstandigheden. In koelere streken behoudt het ras zijn kenmerkende frisheid en aromatische finesse. De kleur is meestal lichter dan bij veel andere blauwe rassen.","regions":"Bourgogne, Champagne, Duitsland, Oregon, Nieuw-Zeeland en koelere delen van Californië zoals delen van de Central Coast.","extra":"Door de dunne schil heeft Pinot Noir doorgaans minder kleur en tannine dan Cabernet Sauvignon of Saperavi."},"Rondinella":{"acid":"Gemiddeld","tannin":"Laag–gemiddeld","body":"Medium","summary":"Een robuust lokaal ras uit Valpolicella dat vooral kleur en ondersteuning aan blends geeft en goed tegen indroging kan.","aromas":"Rood fruit, kers, florale tonen en lichte specerijen.","character":"Rondinella is weerbestendig en relatief resistent tegen ziekten. In Valpolicella speelt het meestal een ondersteunende rol naast Corvina en Corvinone en draagt het kleur en smaak bij.","regions":"Veneto, vrijwel uitsluitend in en rond Valpolicella.","extra":"Rondinella is een toegestane en traditionele component van Valpolicella, Amarone en Recioto en is geschikt voor appassimento."},"Sangiovese":{"acid":"Hoog","tannin":"Gemiddeld–hoog","body":"Medium–vol","summary":"Het klassieke blauwe ras van Midden-Italië: fris, kersachtig en hartig, met duidelijke zuren en tannine.","aromas":"Zure kers, rode pruim, gedroogde kruiden, thee en aarde; rijping kan leer en tabak brengen.","character":"Sangiovese behoudt doorgaans hoge zuren en heeft merkbare tannine. De stijl loopt uiteen van levendig en fruitig tot krachtig en lang gerijpt, afhankelijk van herkomst, opbrengst en houtgebruik.","regions":"Vooral Toscane: Chianti, Brunello di Montalcino en Vino Nobile di Montepulciano; ook elders in Italië.","extra":"Sangiovese kent veel lokale biotypen en namen. Het ras is sterk met Toscane verbonden, maar is niet exclusief Toscaans."},"Saperavi":{"acid":"Hoog","tannin":"Hoog","body":"Vol","summary":"Georgië's belangrijkste blauwe ras en een teinturier: niet alleen de schil, maar ook het vruchtvlees bevat veel kleurstof.","aromas":"Braam, zwarte bes, donkere kers, pruim, zoethout, kruiden en aardse tonen.","character":"Saperavi levert zeer donkere, vaak bijna ondoorzichtige wijnen met aanzienlijke zuren en tannine. Het ras kan droog, halfzoet en in andere stijlen worden gemaakt en heeft in geconcentreerde droge vorm een groot rijpingspotentieel.","regions":"Vooral Kakheti in Oost-Georgië; ook elders in Georgië en in enkele andere landen.","extra":"De naam verwijst naar kleuren/verven. De combinatie van gekleurd vruchtvlees, zuur en tannine onderscheidt Saperavi duidelijk van de meeste blauwe druiven."},"Tempranillo":{"acid":"Gemiddeld–hoog","tannin":"Gemiddeld–hoog","body":"Medium–vol","summary":"Spanje's belangrijkste blauwe ras, beroemd uit Rioja en geschikt voor zowel fruitige als lang gerijpte stijlen.","aromas":"Kers, aardbei, pruim en gedroogde vijg; hout en flesrijping kunnen ceder, tabak, leer, vanille en specerijen geven.","character":"Tempranillo combineert rijp rood fruit met voldoende tannine en zuur voor rijping. In Rioja is hout- en flesrijping historisch zeer belangrijk, waardoor tertiaire aroma’s vaak een groot deel van het profiel vormen.","regions":"Rioja en Ribera del Duero; breed aangeplant in Spanje en ook in Portugal onder andere namen.","extra":"De naam verwijst naar 'temprano' (vroeg): het ras rijpt relatief vroeg. Rioja-blends kunnen Tempranillo combineren met onder meer Graciano en Mazuelo."}};
+const regionKnowledge={"Central Coast":{"subtitle":"Californië · Verenigde Staten","climate":"Een zeer groot wijngebied langs de Californische kust. De Stille Oceaan kan via koude zeelucht, wind en mist voor sterke verkoeling zorgen, vooral waar valleien en bergopeningen maritieme lucht landinwaarts geleiden. Verder landinwaarts zijn delen duidelijk warmer.","terroir":"Er bestaat geen enkel Central Coast-terroir: het gebied omvat vele AVA’s, hoogtes, hellingen en bodemtypen. De belangrijkste rode draad is het contrast tussen maritiem gekoelde kustzones en warmere binnenlandse locaties.","grapes":"Pinot Noir en Chardonnay zijn belangrijk in koelere zones; Cabernet Sauvignon, Merlot, Syrah en andere rassen doen het goed in warmere subregio’s. De stijl varieert daarom sterk.","note":"Gebruik 'Central Coast' vooral als brede geografische herkomst. Voor terroir is de specifieke sub-AVA meestal informatiever."},"Veneto":{"subtitle":"Noordoost-Italië","climate":"Veneto strekt zich uit van de Alpen en voor-Alpen tot vlaktes richting de Adriatische Zee. Daardoor varieert het klimaat sterk: hoogte, meren, valleien en maritieme invloed zorgen voor uiteenlopende omstandigheden.","terroir":"Ook de bodems zijn zeer divers. Heuvelzones kunnen kalksteen, mergel, klei of vulkanisch materiaal bevatten; vlaktes hebben vaak meer alluviale afzettingen. Er bestaat daarom geen universele 'Veneto-bodem' of één terroirsmaak.","grapes":"Bekende gebieden en stijlen zijn Valpolicella/Amarone, Soave en Prosecco. Voor rode Valpolicella-wijnen zijn Corvina, Corvinone en Rondinella kernrassen.","note":"Veneto is een grote regio. Specifieke zones zoals Valpolicella geven veel meer terroirdetail dan de regionale naam alleen."},"Uco Valley":{"subtitle":"Mendoza · Argentinië","climate":"Een hooggelegen, droog wijngebied aan de voet van de Andes. Hoogte verlaagt de gemiddelde temperatuur, terwijl intense zon en grote verschillen tussen dag- en nachttemperatuur rijping combineren met behoud van frisheid.","terroir":"De bodems zijn overwegend alluviaal en zeer heterogeen: stenen, zand, silt, klei en plaatselijk kalkrijke afzettingen komen voor. Irrigatiewater is essentieel in het droge klimaat en is historisch verbonden met smeltwater uit de Andes.","grapes":"Malbec is het bekendste ras, maar ook Cabernet Franc, Cabernet Sauvignon, Chardonnay en andere rassen zijn belangrijk. Hoogte en lokale bodemverschillen kunnen grote stijlverschillen geven.","note":"Uco Valley omvat onder meer Tupungato, Tunuyán en San Carlos. Subzones zoals Gualtallary en Paraje Altamira hebben elk eigen geologische en klimatologische kenmerken."},"Rioja Alta":{"subtitle":"Rioja · Spanje","climate":"In Rioja Alta overheerst Atlantische invloed. De relatief hoge ligging vertraagt op veel plaatsen de rijping en helpt zuren en frisheid te behouden; lagere locaties kunnen rijper fruit geven.","terroir":"De officiële Rioja-bronnen beschrijven een mozaïek van kalkhoudende klei, ijzerhoudende klei en alluviale bodems. Hoogte en bodemtype verschillen aanzienlijk per wijngaard.","grapes":"Tempranillo is het dominante blauwe ras. Graciano en Mazuelo zijn klassieke partners die respectievelijk aroma/zuur en structuur/zuur kunnen bijdragen. Hout- en flesrijping spelen een belangrijke rol in traditionele Rioja-stijlen.","note":"Rioja Alta is een productiezone binnen DOCa Rioja; niet iedere wijn uit Rioja Alta smaakt hetzelfde."},"Racha-Lechkhumi":{"subtitle":"West-Georgië","climate":"Een kleine, bergachtige wijnregio met wijngaarden op hellingen en in rivierdalen. Hoogte, expositie en lokale microklimaten zorgen voor aanzienlijke variatie.","terroir":"Racha ligt sterk rond de Rioni-vallei; wijngaarden komen veel op hellingen voor. Bodems verschillen lokaal en kunnen onder meer kalkhoudend, kleiig en stenig zijn.","grapes":"Aleksandrouli en Mujuretuli zijn iconisch voor Racha en vormen samen de basis van Khvanchkara. De regio kent daarnaast diverse zeldzame inheemse rassen.","note":"Racha en Lechkhumi worden vaak samen genoemd, maar bevatten meerdere afzonderlijke microzones en appellaties."},"Kakheti":{"subtitle":"Oost-Georgië","climate":"Georgië's belangrijkste wijnregio ligt in het oosten en is overwegend warmer en droger dan veel westelijke regio’s. De Grote Kaukasus en lokale valleien beïnvloeden temperatuur, wind en neerslag.","terroir":"Kakheti omvat een groot aantal microzones en uiteenlopende bodems, waaronder alluviale, leemachtige en kalkhoudende bodems. Een enkel 'Kakheti-terroir' bestaat dus niet.","grapes":"Saperavi is het belangrijkste blauwe ras. Traditionele Kakhetische qvevri-vinificatie kan druivensap langdurig met schillen, pitten en soms stelen laten vergisten en rijpen, maar Europese vinificatiemethoden worden eveneens veel gebruikt.","note":"Tibaani is een beschermde herkomst/microzone binnen Kakheti. Qvevri is een vinificatie- en rijpingsmethode, geen bodem- of terroirkenmerk."},"Valpolicella":{"subtitle":"Veneto · Italië","climate":"Het gebied ligt rond Verona en omvat heuvels en valleien met verschillen in hoogte, expositie en luchtstroming. De Lessini-bergen in het noorden en het Gardameer in het westen beïnvloeden lokale omstandigheden.","terroir":"Bodems zijn gevarieerd en kunnen kalksteen, mergel, klei, basalt en alluviaal of grindrijk materiaal bevatten. De precieze combinatie verschilt per vallei en helling.","grapes":"Corvina, Corvinone en Rondinella zijn de kernrassen. De regio produceert Valpolicella, Ripasso, Recioto en Amarone. Bij Amarone en Recioto speelt appassimento een centrale rol.","note":"Appassimento is een kelder-/productietechniek na de oogst en moet niet met terroir worden verward."}};
+const articleKnowledge={"Terroir":"<div class=section><h3>Wat is terroir?</h3><p>Terroir is het samenspel van natuurlijke omstandigheden van een wijngaard: klimaat, bodem en geologie, topografie, hoogte, expositie en waterbeschikbaarheid. In een bredere definitie worden ook menselijke tradities en historisch wijngaardbeheer meegenomen.</p></div>\n<div class=section><h3>Klimaat</h3><p>Koelere omstandigheden vertragen doorgaans de rijping en helpen zuren behouden; warmere omstandigheden versnellen rijping en kunnen tot rijper fruit en meer potentiële alcohol leiden. Grote verschillen tussen dag- en nachttemperatuur kunnen rijping overdag combineren met relatief goede zuurretentie 's nachts. Hoogte werkt onder meer via lagere temperaturen en intensere zonnestraling. Zee, meren, wind en mist kunnen lokale temperaturen sterk beïnvloeden.</p></div>\n<div class=section><h3>Bodem en water</h3><p>Bodem beïnvloedt de wijnstok vooral indirect: via drainage, wateropslag, temperatuur, beworteling en beschikbaarheid van voedingsstoffen. Klei houdt relatief veel water vast; zand draineert doorgaans sneller; grind en stenen bevorderen drainage en kunnen warmte opslaan. Alluviale bodems zijn door water afgezet en kunnen sterk variëren.</p></div>\n<div class=section><h3>Belangrijke nuance</h3><p>Het is te eenvoudig om te zeggen dat kalksteen, graniet, ijzer of vulkanisch gesteente letterlijk als dezelfde 'mineralen' in het glas worden geproefd. De relatie tussen geologie en smaak is complex en verloopt vooral via de groeiomstandigheden van de wijnstok. Ook aroma's van vanille of toast zijn meestal eerder met houtlagering verbonden dan met terroir.</p></div>","Wijnbouw":"<div class=section><h3>Jaarcyclus van de wijnstok</h3><p>Na de winterrust volgen snoei, knopbreuk, scheutgroei, bloei, vruchtzetting, groei van de bessen, véraison en rijping. Bij véraison beginnen blauwe druiven te verkleuren en veranderen de bessen fysiologisch richting rijpheid. Daarna stijgt het suikergehalte doorgaans terwijl de totale zuurgraad afneemt en aroma's en fenolische rijpheid zich verder ontwikkelen.</p></div>\n<div class=section><h3>Snoei, geleiding en bladerdek</h3><p>Winter- en zomersnoei, het geleidingssysteem en bladerdekbeheer bepalen hoeveel knoppen en trossen de plant draagt en hoeveel licht en lucht de druiven krijgen. Dit beïnvloedt opbrengst, rijping en ziektedruk. Een lage opbrengst is niet automatisch beter en een hoge opbrengst niet automatisch slecht: balans tussen vegetatieve groei en fruit is belangrijker.</p></div>\n<div class=section><h3>Water en klimaatrisico's</h3><p>De wijnstok heeft water nodig. Matige waterstress kan overmatige groei beperken, maar ernstige droogtestress remt fotosynthese en rijping en kan schade veroorzaken. Andere risico's zijn voorjaarsvorst, hagel, hittegolven, schimmelziekten, insecten en vogels.</p></div>\n<div class=section><h3>Onderstammen en phylloxera</h3><p>De meeste Vitis vinifera in moderne wijngaarden is geënt op onderstammen met Amerikaanse afkomst die resistent of tolerant zijn tegen phylloxera, de wortelluis die in de negentiende eeuw Europese wijngaarden verwoestte.</p></div>\n<div class=section><h3>Oogst</h3><p>Het oogstmoment is een stijlbeslissing én een agronomische beslissing. Producenten wegen suiker, zuur, aroma, tanninerijpheid, weersverwachting en gewenste wijnstijl af. Handmatige oogst maakt selectief plukken mogelijk; machinale oogst is veel sneller en efficiënter waar terrein en regels dat toelaten.</p></div>","Vinificatie":"<div class=section><h3>Van druif naar rode wijn</h3><p>Een veelvoorkomende route is: oogst en selectie → ontstelen/kneuzen → alcoholische vergisting met schillen → persen → eventuele malolactische omzetting → rijping → klaring/filtratie indien gewenst → botteling. Producenten kunnen op vrijwel iedere stap andere keuzes maken.</p></div>\n<div class=section><h3>Vergisting en extractie</h3><p>Gist zet suikers voornamelijk om in ethanol en koolstofdioxide en produceert daarnaast warmte en vele aromatische verbindingen. Bij rode wijn blijven de schillen tijdens een deel of de hele vergisting in contact met het sap. Kleur en een groot deel van de tannine komen uit schillen; pitten en eventueel stelen kunnen eveneens tannine bijdragen.</p></div>\n<div class=section><h3>Malolactische omzetting</h3><p>Bij malolactische omzetting zetten bacteriën het scherpere appelzuur om in zachter melkzuur. Bij rode wijn gebeurt dit zeer vaak. De wijn wordt daardoor microbiologisch stabieler en de zuurbeleving kan zachter worden.</p></div>\n<div class=section><h3>Appassimento</h3><p>Bij appassimento worden geoogste druiven vóór vergisting gedurende een periode gedroogd. Door waterverlies concentreren suiker, zuren, aroma- en smaakstoffen. Dit is fundamenteel voor stijlen als Amarone en Recioto. Het is een productietechniek, geen terroirkenmerk.</p></div>\n<div class=section><h3>Qvevri</h3><p>Een qvevri is een traditioneel Georgisch aardewerken vat dat meestal in de grond wordt ingegraven. In de Kakhetische traditie kan most samen met vaste druivendelen in qvevri vergisten en vervolgens langere tijd rijpen. Qvevri beschrijft het vat en de methode, niet één specifieke wijnstijl of smaak.</p></div>","Proeven":"<div class=section><h3>Kijken, ruiken, proeven</h3><p>Beoordeel eerst uiterlijk en kleur. Ruik daarna zonder en met voorzichtig walsen. Neem vervolgens een slok en let afzonderlijk op aroma's én structuur. Een wijn kan bijvoorbeeld zeer fruitig ruiken maar tegelijk droog, zuur en tanninerijk smaken.</p></div>\n<div class=section><h3>Aroma's</h3><p><b>Primaire aroma's</b> komen vooral uit de druif en de alcoholische vergisting: fruit, bloemen en kruiden. <b>Secundaire aroma's</b> ontstaan door vinificatie, bijvoorbeeld hout, gist of malolactische omzetting. <b>Tertiaire aroma's</b> ontwikkelen tijdens fles- of vatrijping, zoals gedroogd fruit, leer, tabak, bosgrond en paddenstoel.</p></div>\n<div class=section><h3>Structuur</h3><p><b>Zoetheid</b> komt vooral van restsuiker. <b>Zuur</b> geeft frisheid en laat de mond wateren. <b>Tannine</b> veroorzaakt een drogend, stroef gevoel en komt vooral uit schillen, pitten, stelen en hout. <b>Alcohol</b> kan warmte en gewicht geven. <b>Body</b> is de totale gewichts- en viscositeitsindruk in de mond.</p></div>\n<div class=section><h3>Vier bruikbare assen</h3><p><b>Rond ↔ Fris:</b> zachte, brede indruk tegenover een nadrukkelijk frisse/zuurgedreven indruk.<br><b>Droog ↔ Zoet:</b> afwezigheid tegenover duidelijke aanwezigheid van restsuiker.<br><b>Soepel ↔ Tanninerijk:</b> weinig drogende grip tegenover veel tanninestructuur.<br><b>Licht ↔ Stevig:</b> totale indruk van body, alcohol, extract en structuur.</p></div>","Rijping & hout":"<div class=section><h3>Waarom hout?</h3><p>Houten vaten kunnen gecontroleerde zuurstofuitwisseling toelaten en aroma's of tannine aan wijn afgeven. Het effect hangt af van houtsoort, vatgrootte, leeftijd van het vat, toastniveau en verblijfsduur. Nieuw klein hout heeft doorgaans meer aromatische invloed dan oud of zeer groot hout.</p></div>\n<div class=section><h3>Aroma's van eiken</h3><p>Veel voorkomende associaties zijn vanille, toast, ceder, specerijen, rook, koffie en soms kokos. Amerikaans eiken wordt relatief vaak met uitgesproken vanille en kokos geassocieerd; Frans eiken wordt vaak subtieler en kruidiger ervaren, maar producent, toast en vatleeftijd zijn minstens zo belangrijk.</p></div>\n<div class=section><h3>Flesrijping</h3><p>Bij geschikte wijnen verschuift het aromaprofiel geleidelijk van vers fruit naar gedroogd fruit en tertiaire tonen zoals leer, tabak, bosgrond of paddenstoel. Tannines kunnen minder stroef worden en rode wijn verandert vaak van paars/rubijn naar granaat en uiteindelijk bruinere tinten. Niet iedere wijn verbetert door lang bewaren.</p></div>","Wijnkennis":"<div class=section><h3>Herkomst & classificatie</h3>\n<p>Herkomstbenamingen beschermen waar een wijn vandaan komt en onder welke regels hij is geproduceerd. Ze zijn geen universele smaak- of kwaliteitsscore.</p>\n<ul>\n<li><b>PDO / BOB</b> — Europese categorie voor beschermde oorsprongsbenamingen.</li>\n<li><b>PGI / BGA</b> — Europese categorie met een ruimere geografische band.</li>\n<li><b>Italië:</b> IGT, DOC en DOCG.</li>\n<li><b>Spanje:</b> DO en DOCa.</li>\n<li><b>Frankrijk:</b> AOC / AOP.</li>\n<li><b>Portugal:</b> DOP en, waar toegestaan, traditionele nationale vermeldingen.</li>\n</ul>\n<div class=xlinks>${termButton('PDO / BOB')}${termButton('PGI / BGA')}${termButton('IGT')}${termButton('DOC')}${termButton('DOCG')}${termButton('DO')}${termButton('DOCa')}${termButton('AOC / AOP')}${termButton('DOP (Portugal)')}</div>\n</div>\n\n<div class=section><h3>Rijpingstermen in Rioja</h3>\n<p>Crianza, Reserva en Gran Reserva zijn rijpingscategorieën binnen de appellatie. Het zijn geen afzonderlijke herkomstbenamingen.</p>\n<ul>\n<li><b>Crianza:</b> rode Rioja minimaal 2 jaar totale rijping, waarvan minimaal 1 jaar in eikenhout.</li>\n<li><b>Reserva:</b> rode Rioja minimaal 3 jaar totaal, met minimaal 1 jaar in eikenhout en minimaal 6 maanden op fles.</li>\n<li><b>Gran Reserva:</b> rode Rioja minimaal 5 jaar totaal, met minimaal 2 jaar in eikenhout en minimaal 2 jaar op fles.</li>\n</ul>\n<div class=xlinks>${termButton('Crianza')}${termButton('Reserva')}${termButton('Gran Reserva')}</div>\n</div>\n\n<div class=section><h3>Etiket & samenstelling</h3><ul>\n<li><b>Jaargang:</b> het oogstjaar van de druiven; weersomstandigheden kunnen per jaar invloed hebben op rijping en stijl.</li>\n<li><b>Monocépage:</b> wijn die uit één druivenras bestaat of volgens de geldende regels als zodanig mag worden geëtiketteerd.</li>\n<li><b>Blend:</b> wijn samengesteld uit meerdere druivenrassen, percelen of partijen.</li>\n<li><b>Oude Wereld / Nieuwe Wereld:</b> een historische en geografische indeling, geen kwaliteitsrangorde en geen betrouwbare voorspeller van stijl.</li>\n</ul>\n<div class=xlinks>${termButton('Monocépage')}</div></div>\n\n<div class=section><h3>Belangrijke technieken</h3><ul>\n<li><b>Appassimento:</b> geoogste druiven worden vóór vergisting ingedroogd.</li>\n<li><b>Qvevri:</b> traditioneel Georgisch aardewerken vat voor vergisting en/of rijping.</li>\n<li><b>Malolactische omzetting:</b> bacteriën zetten appelzuur om in zachter melkzuur.</li>\n<li><b>Véraison:</b> begin van de rijpingsfase waarin druiven zachter worden en blauwe rassen verkleuren.</li>\n<li><b>Teinturier:</b> blauwe druif waarvan ook het vruchtvlees sterk gepigmenteerd is.</li>\n</ul>\n<div class=xlinks>${termButton('Appassimento')}${termButton('Qvevri')}${termButton('Malolactische omzetting')}${termButton('Véraison')}${termButton('Teinturier')}</div>\n</div>\n\n<div class=section><h3>Veelvoorkomende wijnfouten</h3><ul>\n<li><b>TCA / kurk:</b> muffe geur, vaak omschreven als nat karton of vochtige kelder, met gedempt fruit.</li>\n<li><b>Ongewenste oxidatie:</b> verlies van frisheid, bruining en oxidatieve appel- of nootachtige tonen.</li>\n<li><b>Hoge vluchtige zuren:</b> kunnen aan azijn of nagellakremover doen denken.</li>\n<li><b>Brettanomyces:</b> kan leerachtige, stalachtige of dierlijke aroma's veroorzaken en bij hoge niveaus het fruit overheersen.</li>\n</ul></div>\n\n<div class=section><h3>Wijnwoordenboek</h3>\n<p>Alle technische begrippen staan ook alfabetisch bij elkaar.</p>\n<div class=xlinks><button class=xlink onclick='glossary()'>Open alle begrippen</button></div>\n</div>"};
+function grapeList(){setPage('Druivenrassen',`<div class=eyebrow>Explore</div><h1>Druivenrassen</h1><p class=lead>Bekijk typische aroma’s, structuur en algemene eigenschappen per druivenras.</p><input class=search placeholder="Zoek een druif…" oninput="filterGrapes(this.value)"><div class=photo-grid id=grid>${tiles(grapes,'grape')}</div>`)}
+function filterGrapes(q){let a=grapes.filter(x=>x.name.toLowerCase().includes(q.toLowerCase()));document.getElementById('grid').innerHTML=tiles(a,'grapeFiltered');window.filtered=a}
+function grapeFilteredDetail(i){grapePage((window.filtered||grapes)[i])} function grapeDetail(i){grapePage(grapes[i])}
+
+const grapeRegionLinks={
+ "Aleksandrouli":["Racha-Lechkhumi"],"Cabernet Sauvignon":["Central Coast"],"Corvina":["Valpolicella","Veneto"],
+ "Corvinone":["Valpolicella","Veneto"],"Graciano":["Rioja Alta"],"Malbec":["Uco Valley"],"Mazuelo":["Rioja Alta"],
+ "Merlot":["Central Coast"],"Mujuretuli":["Racha-Lechkhumi"],"Petite Sirah":["Central Coast"],"Petit Verdot":["Central Coast"],
+ "Pinot Noir":["Central Coast"],"Rondinella":["Valpolicella","Veneto"],"Sangiovese":["Veneto"],
+ "Saperavi":["Kakheti"],"Tempranillo":["Rioja Alta"]
+};
+const regionGrapeLinks={
+ "Central Coast":["Pinot Noir","Cabernet Sauvignon","Merlot","Petite Sirah","Petit Verdot"],
+ "Veneto":["Corvina","Corvinone","Rondinella","Sangiovese"],
+ "Uco Valley":["Malbec","Cabernet Sauvignon"],
+ "Rioja Alta":["Tempranillo","Graciano","Mazuelo"],
+ "Racha-Lechkhumi":["Aleksandrouli","Mujuretuli"],
+ "Kakheti":["Saperavi"],
+ "Valpolicella":["Corvina","Corvinone","Rondinella"]
+};
+function grapeByName(n){let i=grapes.findIndex(x=>x.name===n);if(i>=0)grapePage(grapes[i])}
+function regionByName(n){let i=regions.findIndex(x=>x.name===n);if(i>=0)regionDetail(i)}
+function xGrape(n){return `<button class=xlink onclick='grapeByName(${JSON.stringify(n)})'>${n}</button>`}
+function xRegion(n){return `<button class=xlink onclick='regionByName(${JSON.stringify(n)})'>${n}</button>`}
+function xArticle(n,label){return `<button class=xlink onclick='article(${JSON.stringify(n)})'>${label||n}</button>`}
+
+const glossaryKnowledge={
+ "Appassimento":{short:"Indrogen van geoogste druiven vóór vergisting.",body:"Appassimento is een Italiaanse techniek waarbij rijpe druiven na de oogst gedurende weken tot maanden worden gedroogd. Door waterverlies worden suiker, zuren, aroma- en smaakstoffen geconcentreerd. Daarna worden de druiven geperst en vergist. De methode is essentieel voor onder meer Amarone della Valpolicella en Recioto della Valpolicella.",links:["Valpolicella","Corvina","Corvinone","Rondinella"]},
+ "Amarone":{short:"Droge DOCG-wijn uit Valpolicella, gemaakt met ingedroogde druiven.",body:"Amarone della Valpolicella is geen druivenras maar een beschermde Italiaanse wijnbenaming uit Valpolicella. De toegestane lokale blauwe druiven worden via appassimento ingedroogd en vervolgens vrijwel droog vergist. Daardoor zijn Amarone-wijnen doorgaans geconcentreerd en relatief alcoholrijk.",links:["Valpolicella","Corvina","Corvinone","Rondinella"]},
+ "Qvevri":{short:"Traditioneel Georgisch aardewerken wijnvat.",body:"Een qvevri is een groot, eivormig aardewerken vat dat traditioneel in de grond wordt ingegraven. Het kan worden gebruikt voor vergisting en rijping. In de traditionele Kakhetische methode kan most langdurig in contact blijven met schillen, pitten en soms stelen. Qvevri is een vat en vinificatiemethode, geen druivenras of terroirtype.",links:["Kakheti","Saperavi"]},
+ "Véraison":{short:"Begin van de rijpingsfase en verkleuring van druiven.",body:"Véraison is de fase waarin druiven van harde, groene bessen overgaan naar rijping. Blauwe rassen beginnen te verkleuren, de bessen worden zachter en suiker neemt toe terwijl de totale zuurgraad doorgaans afneemt."},
+ "Malolactische omzetting":{short:"Bacteriële omzetting van appelzuur naar melkzuur.",body:"Bij malolactische omzetting zetten melkzuurbacteriën het scherpere appelzuur om in zachter melkzuur en koolstofdioxide. Vrijwel alle rode wijnen ondergaan dit proces; bij witte wijn is het een stijlkeuze. Het kan de zuurbeleving verzachten en bepaalde aroma's beïnvloeden."},
+ "Teinturier":{short:"Druif met gekleurd vruchtvlees én gekleurd sap.",body:"Bij de meeste blauwe wijndruiven is het vruchtvlees vrijwel kleurloos en zit de kleur vooral in de schil. Een teinturier heeft daarnaast sterk gepigmenteerd vruchtvlees. Saperavi is een bekend voorbeeld.",links:["Saperavi"]},
+ "Monocépage":{short:"Wijn die uit één druivenras bestaat of als zodanig wordt geëtiketteerd.",body:"Monocépage betekent letterlijk één druivenras. Hoeveel procent van dat ras wettelijk vereist is om het ras op het etiket te mogen vermelden, hangt af van het toepasselijke wijnrecht. Het tegenovergestelde is een blend van meerdere rassen."},
+ "AVA":{short:"Amerikaanse wettelijk afgebakende wijnbouwregio.",body:"AVA staat voor American Viticultural Area. Het is een geografisch afgebakend Amerikaans wijnbouwgebied met herkenbare geografische of klimatologische kenmerken. Een AVA schrijft niet op dezelfde manier als veel Europese appellaties druivenrassen, opbrengsten of vinificatiemethoden voor.",links:["Central Coast"]},
+ "PDO / BOB":{short:"EU-categorie met de sterkste beschermde band met een herkomstgebied.",body:"PDO staat voor Protected Designation of Origin; in het Nederlands BOB, Beschermde Oorsprongsbenaming. Voor wijn moeten de druiven uit het afgebakende geografische gebied komen en gelden productspecificaties voor de beschermde benaming. Nationale traditionele termen zoals Italiaanse DOC en DOCG kunnen binnen het EU-systeem als PDO/BOB functioneren."},
+ "PGI / BGA":{short:"EU-categorie met een geografische band die ruimer is dan PDO.",body:"PGI staat voor Protected Geographical Indication; in het Nederlands BGA, Beschermde Geografische Aanduiding. Voor wijn moet ten minste 85% van de gebruikte druiven uit het aangeduide geografische gebied komen. Italiaanse IGT-benamingen vallen onder deze categorie."},
+ "IGT":{short:"Italiaanse traditionele term voor een geografische wijnbenaming binnen PGI/BGA.",body:"IGT staat voor Indicazione Geografica Tipica. Het is een Italiaanse traditionele aanduiding voor wijn met een beschermde geografische herkomst binnen de Europese PGI/BGA-categorie. De regels zijn doorgaans ruimer dan bij DOC of DOCG."},
+ "DOC":{short:"Italiaanse traditionele beschermde herkomstbenaming.",body:"DOC staat voor Denominazione di Origine Controllata. Een DOC heeft een afgebakend productiegebied en een productspecificatie met regels die bijvoorbeeld druivenrassen, opbrengsten, alcohol en productie kunnen betreffen. DOC valt binnen de Europese PDO/BOB-categorie."},
+ "DOCG":{short:"Italiaanse traditionele beschermde herkomstbenaming met aanvullende nationale waarborgen.",body:"DOCG staat voor Denominazione di Origine Controllata e Garantita. Net als DOC valt DOCG binnen de Europese PDO/BOB-categorie. DOCG kent in Italië aanvullende controle- en garantievereisten. De term moet niet worden gelezen als een garantie dat iedere DOCG-wijn sensorisch beter is dan iedere DOC- of IGT-wijn.",links:["Valpolicella"]},
+ "DO":{short:"Spaanse beschermde oorsprongsbenaming.",body:"DO staat voor Denominación de Origen. Het is een Spaanse beschermde geografische wijnbenaming met een afgebakend gebied en productspecificaties."},
+ "DOCa":{short:"Spaanse Denominación de Origen Calificada.",body:"DOCa is een Spaanse beschermde oorsprongsbenaming voor appellaties die aan aanvullende wettelijke voorwaarden voldoen. Rioja kreeg deze status in 1991. DOCa is een herkomst- en regelgevingscategorie; het is iets anders dan de rijpingstermen Crianza, Reserva en Gran Reserva.",links:["Rioja Alta"]},
+ "Crianza":{short:"Spaanse/Rioja rijpingsterm; geen aparte herkomstbenaming.",body:"Voor rode Rioja Crianza geldt minimaal twee jaar totale rijping vanaf 1 oktober van het oogstjaar, waarvan minimaal één jaar in eikenhouten vaten. De term beschrijft dus rijping binnen de appellatie, niet een hogere geografische herkomstcategorie.",links:["Rioja Alta"]},
+ "Reserva":{short:"Rijpingsterm met langere minimale rijping dan Crianza.",body:"Voor rode Rioja Reserva geldt minimaal drie jaar rijping tussen vat en fles, met minimaal één jaar in eikenhout en minimaal zes maanden op fles. De totale minimumduur blijft drie jaar.",links:["Rioja Alta"]},
+ "Gran Reserva":{short:"Rioja-rijpingsterm voor langdurig gerijpte wijn.",body:"Voor rode Rioja Gran Reserva geldt minimaal vijf jaar rijping, met minimaal twee jaar in eikenhouten vaten en minimaal twee jaar op fles.",links:["Rioja Alta"]},
+ "Microzone":{short:"Kleiner geografisch gebied binnen een grotere wijnregio.",body:"Een microzone is een kleiner, specifiek afgebakend gebied binnen een grotere wijnregio. De precieze juridische betekenis verschilt per land en appellatie. De term kan slaan op een beschermd subgebied met eigen geografische grenzen en soms eigen regels.",links:["Kakheti"]},
+ "Alluviaal":{short:"Bodem of sediment dat door stromend water is afgezet.",body:"Alluviale bodems zijn opgebouwd uit materiaal dat door rivieren en andere waterstromen is vervoerd en afgezet. Ze kunnen bestaan uit uiteenlopende mengsels van klei, silt, zand, grind en stenen; 'alluviaal' zegt daarom niet één specifieke bodemtextuur of smaak."},
+ "Polyfenolen":{short:"Groep plantaardige verbindingen waaronder tanninen en kleurstoffen.",body:"Polyfenolen zijn een brede groep verbindingen in druiven en wijn. Daartoe behoren onder meer tanninen en anthocyanen. Ze spelen een rol in kleur, bitterheid, mondgevoel, oxidatiereacties en rijpingsgedrag."},
+ "Fenolische rijpheid":{short:"Rijpheid van onder meer schil- en pitcomponenten.",body:"Fenolische rijpheid beschrijft de ontwikkeling van stoffen in schillen, pitten en eventueel stelen, waaronder tanninen, kleurstoffen en aroma-gerelateerde verbindingen. Ze loopt niet noodzakelijk exact gelijk met de suikeropbouw in de druif."},
+ "Tannine":{short:"Drogende, samentrekkende structuurcomponent van wijn.",body:"Tanninen zijn polyfenolen die vooral uit druivenschillen, pitten en stelen komen en ook door hout kunnen worden toegevoegd. Ze binden aan eiwitten in speeksel en veroorzaken daardoor het typische droge, stroeve mondgevoel."},
+ "Rest­sui­ker":{short:"Suiker die na de vergisting in de wijn achterblijft.",body:"Restsuiker is suiker die niet tijdens de alcoholische vergisting is omgezet. De hoeveelheid draagt sterk bij aan de ervaren zoetheid, maar zuur, alcohol en andere structurele componenten beïnvloeden hoe zoet een wijn uiteindelijk smaakt."}
+};
+
+const termRelations={
+ "Appassimento":["Amarone","DOCG"], "Amarone":["Appassimento","DOCG"],
+ "Qvevri":[], "Véraison":["Fenolische rijpheid"], "Malolactische omzetting":[],
+ "Teinturier":[], "Monocépage":[], "AVA":["PDO / BOB","PGI / BGA"],
+ "PDO / BOB":["DOC","DOCG","AOC / AOP","DO","DOCa","DOP (Portugal)"],
+ "PGI / BGA":["IGT","IGP (Frankrijk)","IGP (Portugal)"],
+ "IGT":["PGI / BGA","IGP (Frankrijk)","IGP (Portugal)"],
+ "DOC":["DOCG","PDO / BOB","AOC / AOP","DO","DOCa","DOP (Portugal)"],
+ "DOCG":["DOC","PDO / BOB","AOC / AOP","DO","DOCa","DOP (Portugal)"],
+ "DO":["DOCa","PDO / BOB","DOC","DOCG","AOC / AOP","DOP (Portugal)"],
+ "DOCa":["DO","PDO / BOB","DOC","DOCG","AOC / AOP","DOP (Portugal)"],
+ "AOC / AOP":["PDO / BOB","DOC","DOCG","DO","DOCa","DOP (Portugal)"],
+ "DOP (Portugal)":["PDO / BOB","DOC","DOCG","AOC / AOP","DO","DOCa"],
+ "IGP (Frankrijk)":["PGI / BGA","IGT","IGP (Portugal)"],
+ "IGP (Portugal)":["PGI / BGA","IGT","IGP (Frankrijk)"],
+ "Crianza":["Reserva","Gran Reserva","DOCa"],
+ "Reserva":["Crianza","Gran Reserva","DOCa"],
+ "Gran Reserva":["Crianza","Reserva","DOCa"],
+ "Microzone":["AVA"], "Alluviaal":["Terroir"], "Polyfenolen":["Tannine","Fenolische rijpheid"],
+ "Fenolische rijpheid":["Polyfenolen","Tannine","Véraison"], "Tannine":["Polyfenolen","Fenolische rijpheid"]
+};
+const systemFamilies={
+ "DOCG":{title:"Vergelijkbare herkomsttermen",items:[
+  ["DOC","Italië","Zelfde Italiaanse PDO/BOB-familie; DOCG heeft aanvullende nationale controle- en garantievereisten."],
+  ["DOCa","Spanje","Gekwalificeerde Spaanse oorsprongsbenaming; Rioja is een DOCa."],
+  ["AOC / AOP","Frankrijk","AOC is de Franse nationale oorsprongsterm; AOP is de Europese beschermde oorsprongsbenaming."],
+  ["DOP (Portugal)","Portugal","Portugese/Europese aanduiding voor wijn met beschermde oorsprong."]
+ ]},
+ "DOC":{title:"Vergelijkbare herkomsttermen",items:[
+  ["DOCG","Italië","Italiaanse PDO/BOB-term met aanvullende nationale controle- en garantievereisten."],
+  ["DO","Spanje","Spaanse beschermde oorsprongsbenaming."],
+  ["AOC / AOP","Frankrijk","Franse nationale AOC binnen het Europese AOP/PDO-stelsel."],
+  ["DOP (Portugal)","Portugal","Portugese/Europese aanduiding voor beschermde oorsprong."]
+ ]},
+ "DOCa":{title:"Vergelijkbare herkomsttermen",items:[
+  ["DO","Spanje","De bredere Spaanse oorsprongscategorie waaronder veel appellaties vallen."],
+  ["DOCG","Italië","Italiaanse beschermde oorsprongsterm met aanvullende nationale eisen; geen letterlijke één-op-één juridische vertaling van DOCa."],
+  ["AOC / AOP","Frankrijk","Franse nationale AOC en Europese AOP voor beschermde oorsprong."],
+  ["DOP (Portugal)","Portugal","Portugese/Europese aanduiding voor beschermde oorsprong."]
+ ]},
+ "DO":{title:"Vergelijkbare herkomsttermen",items:[
+  ["DOCa","Spanje","Spaanse gekwalificeerde oorsprongsbenaming, zoals Rioja DOCa."],
+  ["DOC","Italië","Italiaanse traditionele term binnen PDO/BOB."],
+  ["AOC / AOP","Frankrijk","Franse nationale AOC en Europese AOP."],
+  ["DOP (Portugal)","Portugal","Portugese/Europese beschermde oorsprong."]
+ ]},
+ "PDO / BOB":{title:"Nationale termen binnen hetzelfde Europese idee",items:[
+  ["DOC","Italië","Traditionele Italiaanse oorsprongsterm binnen PDO/BOB."],
+  ["DOCG","Italië","Traditionele Italiaanse oorsprongsterm met aanvullende nationale waarborgen."],
+  ["AOC / AOP","Frankrijk","AOC is de nationale Franse term; AOP de Europese benaming."],
+  ["DO","Spanje","Spaanse oorsprongsbenaming."],
+  ["DOCa","Spanje","Spaanse gekwalificeerde oorsprongsbenaming."],
+  ["DOP (Portugal)","Portugal","Portugese/Europese aanduiding voor beschermde oorsprong."]
+ ]},
+ "PGI / BGA":{title:"Nationale varianten van geografische aanduiding",items:[
+  ["IGT","Italië","Italiaanse traditionele term binnen PGI/BGA."],
+  ["IGP (Frankrijk)","Frankrijk","Indication Géographique Protégée; Franse benaming voor PGI."],
+  ["IGP (Portugal)","Portugal","Indicação Geográfica Protegida; Portugese benaming voor PGI."]
+ ]},
+ "IGT":{title:"Vergelijkbare geografische aanduidingen",items:[
+  ["PGI / BGA","EU / Nederland","Europese categorie waaronder IGT valt."],
+  ["IGP (Frankrijk)","Frankrijk","Franse PGI-benaming."],
+  ["IGP (Portugal)","Portugal","Portugese PGI-benaming."]
+ ]}
+};
+
+Object.assign(glossaryKnowledge,{
+ "AOC / AOP":{short:"Franse nationale AOC en Europese AOP voor beschermde oorsprong.",body:"AOC staat voor Appellation d'Origine Contrôlée en is de historische/nationale Franse oorsprongsaanduiding. AOP staat voor Appellation d'Origine Protégée en is de Europese beschermde oorsprongscategorie. Voor wijn mag de Franse AOC-vermelding naast/in plaats van de AOP-vermelding worden gebruikt volgens de toepasselijke regels."},
+ "DOP (Portugal)":{short:"Portugese aanduiding voor Denominação de Origem Protegida.",body:"DOP staat in Portugal voor Denominação de Origem Protegida en correspondeert met de Europese PDO/BOB-categorie. Op Portugese wijnetiketten kunnen ook traditionele termen zoals DO of DOC voorkomen wanneer de toepasselijke regels dat toestaan."},
+ "IGP (Frankrijk)":{short:"Franse benaming voor de Europese PGI/BGA-categorie.",body:"IGP staat in Frankrijk voor Indication Géographique Protégée. De categorie beschermt een geografische herkomst met ruimere voorwaarden dan AOP/PDO. Voor Franse wijn verving IGP de vroegere categorie Vin de Pays."},
+ "IGP (Portugal)":{short:"Portugese benaming voor de Europese PGI/BGA-categorie.",body:"IGP staat in Portugal voor Indicação Geográfica Protegida. Het is de Portugese benaming binnen de Europese PGI/BGA-categorie en heeft een ruimere geografische band dan DOP/PDO."}
+});
+function glossary(){
+ const keys=Object.keys(glossaryKnowledge).sort((a,b)=>a.localeCompare(b,'nl'));
+ setPage('Begrippen',`<div class=eyebrow>Wijnkennis</div><h1>Begrippen</h1><p class=lead>Veelgebruikte wijntermen, kort en begrijpelijk uitgelegd.</p><div class=term-index>${keys.map(k=>`<button class=term-card onclick='termPage(${JSON.stringify(k)})'><b>${k}</b><span>${glossaryKnowledge[k].short}</span></button>`).join('')}</div>`)
+}
+function termPage(n){
+ const d=glossaryKnowledge[n]; if(!d)return;
+ let rel='';
+ (d.links||[]).forEach(x=>{if(regions.some(r=>r.name===x))rel+=xRegion(x);else if(grapes.some(g=>g.name===x))rel+=xGrape(x)});
+ let related=(termRelations[n]||[]).filter(x=>glossaryKnowledge[x]);
+ let relatedHtml=related.length?`<div class=section><h3>Vergelijkbare & verwante termen</h3><div class=xlinks>${related.map(x=>termButton(x)).join('')}</div></div>`:'';
+ let fam=systemFamilies[n];
+ let familyHtml=fam?`<div class=section><h3>${fam.title}</h3>${fam.items.map(([key,country,desc])=>`<div class=linkbox style="margin:9px 0"><b>${country}: ${termButton(key)}</b><br><span style="color:var(--muted)">${desc}</span></div>`).join('')}</div>`:'';
+ if(n==='Appassimento')rel+=xArticle('Vinificatie');
+ if(['DOC','DOCG','IGT','PDO / BOB','PGI / BGA','DO','DOCa','AOC / AOP','DOP (Portugal)','IGP (Frankrijk)','IGP (Portugal)','Crianza','Reserva','Gran Reserva'].includes(n))rel+=xArticle('Wijnkennis','Herkomst & classificaties');
+ setPage(n,`<div class=eyebrow>Begrip</div><h1>${n}</h1><p class=lead>${d.short}</p><div class=section><h3>Uitleg</h3><p>${d.body}</p></div>${familyHtml}${relatedHtml}${rel?`<div class=related><h3>Verder ontdekken</h3><div class=xlinks>${rel}</div></div>`:''}`)
+}
+function termButton(n,label){return `<button class=term-link onclick='termPage(${JSON.stringify(n)})'>${label||n}</button>`}
+function grapePage(g){
+ const d=grapeKnowledge[g.name]||{}, regs=grapeRegionLinks[g.name]||[];
+ setPage(g.name,`<div class=eyebrow>Druivenras</div>
+ <div class=grape-profile>
+   <img class=grape-profile-photo src="${g.img}" alt="${g.name}">
+   <div class=grape-profile-copy>
+     <h1>${g.name}</h1>
+     <p class=grape-kicker>${d.summary||''}</p>
+     <div class=grape-facts>
+       <div class=grape-fact><span class=grape-fact-label>Zuur</span><span class=grape-fact-value>${d.acid||'—'}</span></div>
+       <div class=grape-fact><span class=grape-fact-label>Tannine</span><span class=grape-fact-value>${d.tannin||'—'}</span></div>
+       <div class=grape-fact><span class=grape-fact-label>Body</span><span class=grape-fact-value>${d.body||'—'}</span></div>
+     </div>
+   </div>
+ </div>
+ <div class=section><h3>Typische aroma’s</h3><p>${d.aromas||''}</p></div>
+ <div class=section><h3>Karakter</h3><p>${d.character||''}</p></div>
+ <div class=section><h3>Belangrijke gebieden</h3><p>${d.regions||''}</p>${regs.length?`<div class=xlinks>${regs.map(xRegion).join('')}</div>`:''}</div>
+ <div class=section><h3>Goed om te weten</h3><p>${d.extra||''}</p></div>
+ <div class=related><h3>Verder ontdekken</h3><div class=xlinks>${xArticle('Terroir')}${xArticle('Wijnbouw')}${xArticle('Vinificatie')}${g.name==='Corvina'||g.name==='Corvinone'||g.name==='Rondinella'?termButton('Amarone')+termButton('Appassimento'):''}</div></div>`)}
+function regionList(){setPage('Wijnstreken',`<div class=eyebrow>Explore</div><h1>Wijnstreken</h1><p class=lead>Ontdek klimaat, bodem, terroir en typische wijnstijlen van belangrijke gebieden.</p><div class=photo-grid>${tiles(regions,'region')}</div>`)}
+function regionDetail(i){
+ let r=regions[i],d=regionKnowledge[r.name]||{}, gs=regionGrapeLinks[r.name]||[];
+ setPage(r.name,`<div class=eyebrow>Wijnstreek</div><h1>${r.name}</h1><p class=lead>${d.subtitle||''}</p><img class=hero src="${r.img}" alt="${r.name}">
+ <div class=section><h3>Klimaat</h3><p>${d.climate||''}</p></div>
+ <div class=section><h3>Terroir</h3><p>${d.terroir||''}</p><div class=xlinks>${xArticle('Terroir','Meer over terroir')}</div></div>
+ <div class=section><h3>Druiven & wijnstijl</h3><p>${d.grapes||''}</p>${gs.length?`<div class=xlinks>${gs.map(xGrape).join('')}</div>`:''}</div>
+ <div class=section><h3>Goed om te weten</h3><p>${d.note||''}</p></div>
+ ${r.name==='Kakheti'?'<div class=linkbox><b>Tibaani</b><br><span style="color:#8b6470">Beschermde herkomst/microzone binnen Kakheti; geen afzonderlijke hoofdregio in dit overzicht.</span></div>':''}
+ <div class=related><h3>Verder ontdekken</h3><div class=xlinks>${xArticle('Wijnbouw')}${xArticle('Vinificatie')}${r.name==='Valpolicella'?termButton('Amarone')+termButton('Appassimento'):''}</div></div>`)}
+function article(n){
+ let body=articleKnowledge[n]||'<div class=section><p>Geen inhoud beschikbaar.</p></div>';
+ body=body.replace(/\$\{termButton\((['"])(.*?)\1(?:,\s*(['"])(.*?)\3)?\)\}/g,(_,q,key,q2,label)=>termButton(key,label||key));
+ const termMap=[
+ ['appassimento','Appassimento'],['qvevri','Qvevri'],['véraison','Véraison'],
+ ['malolactische omzetting','Malolactische omzetting'],['teinturier','Teinturier'],
+ ['monocépage','Monocépage'],['fenolische rijpheid','Fenolische rijpheid'],
+ ['polyfenolen','Polyfenolen'],['alluviale','Alluviaal'],['tannine','Tannine']
+ ];
+ termMap.forEach(([word,key])=>{let re=new RegExp('\\b'+word+'\\b','i');body=body.replace(re,m=>termButton(key,m))});
+ let rel='';
+ if(n==='Terroir') rel=`${xArticle('Wijnbouw')}${xRegion('Uco Valley')}${xRegion('Rioja Alta')}`;
+ if(n==='Wijnbouw') rel=`${xArticle('Terroir')}${xArticle('Vinificatie')}`;
+ if(n==='Vinificatie') rel=`${xArticle('Rijping & hout')}${xRegion('Valpolicella')}${xRegion('Kakheti')}`;
+ if(n==='Proeven') rel=`${xArticle('Rijping & hout')}${xArticle('Wijnkennis')}`;
+ if(n==='Rijping & hout') rel=`${xArticle('Vinificatie')}${xArticle('Proeven')}`;
+ if(n==='Wijnkennis') rel=`<button class=xlink onclick='glossary()'>Begrippen</button>${xRegion('Valpolicella')}${xRegion('Rioja Alta')}${xArticle('Vinificatie','Vinificatie')}${xArticle('Proeven')}`;
+ setPage(n,`<div class=eyebrow>Explore</div><h1>${n}</h1>${body}${rel?`<div class=related><h3>Verder ontdekken</h3><div class=xlinks>${rel}</div></div>`:''}`)
+}
+function goBack(){if(!hist.length)return home();let x=hist.pop();t.textContent=x[0];v.innerHTML=x[1];bk.style.visibility=x[0]==='Explore'?'hidden':'visible';scrollTo(0,0)}
+(function startExplore(){
+ let raw=location.hash?location.hash.slice(1):"",h="";
+ try{h=decodeURIComponent(raw)}catch(_){h=raw}
+ if(h.startsWith("grape=")){const n=h.slice(6),g=grapes.find(x=>x.name===n);if(g){grapePage(g);return}}
+ if(h.startsWith("region=")){const n=h.slice(7),i=regions.findIndex(x=>x.name===n);if(i>=0){regionDetail(i);return}}
+ if(h.startsWith("term=")){const n=h.slice(5);if(glossaryKnowledge[n]){termPage(n);return}}
+ home();
+})();
+
+
+function openExploreRoute(hash){
+ let h=String(hash||"");
+ try{h=decodeURIComponent(h)}catch(_){}
+ if(h.startsWith("grape=")){
+   const n=h.slice(6),g=grapes.find(x=>x.name===n);
+   if(g){grapePage(g);return true}
+ }
+ if(h.startsWith("region=")){
+   const n=h.slice(7),i=regions.findIndex(x=>x.name===n);
+   if(i>=0){regionDetail(i);return true}
+ }
+ if(h.startsWith("term=")){
+   const n=h.slice(5);
+   if(glossaryKnowledge[n]){termPage(n);return true}
+ }
+ return false;
+}
+window.addEventListener("message",ev=>{
+ const d=ev.data||{};
+ if(d.type==="tkag-explore-open"){
+   if(!openExploreRoute(d.hash))home();
+ }else if(d.type==="tkag-explore-home"){
+   home();
+ }
+});
+if(window.parent!==window)window.parent.postMessage({type:"tkag-explore-ready"},"*");
+
+if(window.parent!==window)document.body.classList.add("embedded");
+</script></body></html>
+<!-- v6 verified: grape detail uses tasting-page bottle-card geometry; decorative Explore symbols removed. -->
